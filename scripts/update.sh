@@ -17,6 +17,10 @@ git fetch --depth 1 origin "$BRANCH"
 git reset --hard "origin/$BRANCH"
 chown -R article:article "$INSTALL_DIR" || true
 
+# Reload unit file if changed, then restart
+if systemctl cat article-panel.service >/dev/null 2>&1; then
+  systemctl daemon-reload || true
+fi
 systemctl restart article-panel
 systemctl reload nginx
 
