@@ -40,10 +40,12 @@ ok "/var/www/sites ready"
 SUDOERS_FILE=/etc/sudoers.d/article-panel
 if [[ -f etc/article-panel.sudoers ]]; then
   log "Installing sudoers"
-  cp etc/article-panel.sudoers "$SUDOERS_FILE"
+  # Replace placeholder user with actual sudo invoker (so app user can run these too).
+  ACTOR="${SUDO_USER:-root}"
+  sed "s|^root ALL = NOPASSWD:|${ACTOR} ALL = NOPASSWD:|" etc/article-panel.sudoers > "$SUDOERS_FILE"
   chmod 440 "$SUDOERS_FILE"
   visudo -c -f "$SUDOERS_FILE" >/dev/null
-  ok "sudoers installed"
+  ok "sudoers installed (user: $ACTOR)"
 else
   die "etc/article-panel.sudoers not found"
 fi

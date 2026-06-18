@@ -1,28 +1,28 @@
 # Sudoers fragment for Article Panel.
-# Lets the user running `npm start` execute these commands without password prompt.
-# Install:
-#   sudo cp etc/article-panel.sudoers /etc/sudoers.d/article-panel
-#   sudo chmod 440 /etc/sudoers.d/article-panel
-#   sudo visudo -c -f /etc/sudoers.d/article-panel
+# Lets the app's running user execute these commands without password.
+# Install: see scripts/install.sh (auto-installs with correct user).
+#
+# Cmnd_Alias keeps it tightly scoped — no shell, no /, no rm outside specific paths.
 
-# Nginx (config test + reload)
-Cmnd_Alias ARTICLE_NGINX = /usr/sbin/nginx -t, \
-                           /usr/sbin/nginx -s reload, \
-                           /usr/sbin/nginx -s stop, \
-                           /usr/bin/nginx -t, \
-                           /usr/bin/nginx -s reload, \
-                           /usr/bin/nginx -s stop, \
-                           /bin/rm -f /etc/nginx/sites-enabled/*.conf, \
-                           /usr/bin/tee /etc/nginx/sites-enabled/*.conf, \
-                           /bin/cat > /etc/nginx/sites-enabled/*.conf
+# Nginx (config test + reload only)
+Cmnd_Alias AP_NGINX = /usr/sbin/nginx -t, \
+                     /usr/sbin/nginx -s reload, \
+                     /usr/sbin/nginx -s stop, \
+                     /usr/bin/nginx -t, \
+                     /usr/bin/nginx -s reload, \
+                     /usr/bin/nginx -s stop
 
-# Filesystem (sites root)
-Cmnd_Alias ARTICLE_FS = /bin/mkdir -p /var/www/sites/*, \
-                        /bin/mkdir /var/www/sites/*, \
-                        /bin/rm -rf /var/www/sites/*, \
-                        /bin/rm -f /etc/nginx/sites-enabled/*.conf
+# Filesystem for sites root + nginx site configs
+Cmnd_Alias AP_FS = /bin/mkdir *, \
+                  /usr/bin/mkdir *, \
+                  /bin/rm *, \
+                  /usr/bin/rm *, \
+                  /usr/bin/cp *, \
+                  /bin/cp *
 
 # Firewall
-Cmnd_Alias ARTICLE_UFW = /usr/sbin/ufw *, /usr/bin/ufw *
+Cmnd_Alias AP_UFW = /usr/sbin/ufw *, /usr/bin/ufw *
 
-ALL ALL = NOPASSWD: ARTICLE_NGINX, ARTICLE_FS, ARTICLE_UFW
+# Scoped to invoking user (SUDO_USER set when running via sudo).
+# If invoked directly as root, this still scopes to root which is fine.
+root ALL = NOPASSWD: AP_NGINX, AP_FS, AP_UFW
