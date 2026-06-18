@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth';
 import { sudo } from '@/lib/sh';
 
+export const dynamic = 'force-dynamic';
+
 const SITES_DIR = process.env.SITES_DIR || '/var/www/sites';
 const NGINX_DIR = process.env.NGINX_SITES_DIR || '/etc/nginx/sites-enabled';
 
