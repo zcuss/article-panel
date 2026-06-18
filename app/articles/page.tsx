@@ -58,6 +58,7 @@ export default async function ArticlesPage({ searchParams }: { searchParams: Pro
             <Link href="/articles" className="text-sm text-slate-900 font-medium">Articles</Link>
             <Link href="/articles/new" className="text-sm text-blue-600 hover:text-blue-800">+ New</Link>
             <Link href="/deploy" className="text-sm text-slate-600 hover:text-slate-900">Deploy</Link>
+            <Link href="/system" className="text-sm text-slate-600 hover:text-slate-900">System</Link>
           </div>
         </div>
       </nav>

@@ -41,6 +41,7 @@ export default async function HomePage() {
             <Link href="/articles" className="text-sm text-slate-600 hover:text-slate-900">Articles</Link>
             <Link href="/articles/new" className="text-sm text-blue-600 hover:text-blue-800">+ New</Link>
             <Link href="/deploy" className="text-sm text-slate-600 hover:text-slate-900">Deploy</Link>
+            <Link href="/system" className="text-sm text-slate-600 hover:text-slate-900">System</Link>
           </div>
           <form action={logout}>
             <button className="text-sm text-slate-500 hover:text-red-600">Logout</button>

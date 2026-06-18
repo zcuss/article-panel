@@ -1,0 +1,28 @@
+# Sudoers fragment for Article Panel.
+# Lets the user running `npm start` execute these commands without password prompt.
+# Install:
+#   sudo cp etc/article-panel.sudoers /etc/sudoers.d/article-panel
+#   sudo chmod 440 /etc/sudoers.d/article-panel
+#   sudo visudo -c -f /etc/sudoers.d/article-panel
+
+# Nginx (config test + reload)
+Cmnd_Alias ARTICLE_NGINX = /usr/sbin/nginx -t, \
+                           /usr/sbin/nginx -s reload, \
+                           /usr/sbin/nginx -s stop, \
+                           /usr/bin/nginx -t, \
+                           /usr/bin/nginx -s reload, \
+                           /usr/bin/nginx -s stop, \
+                           /bin/rm -f /etc/nginx/sites-enabled/*.conf, \
+                           /usr/bin/tee /etc/nginx/sites-enabled/*.conf, \
+                           /bin/cat > /etc/nginx/sites-enabled/*.conf
+
+# Filesystem (sites root)
+Cmnd_Alias ARTICLE_FS = /bin/mkdir -p /var/www/sites/*, \
+                        /bin/mkdir /var/www/sites/*, \
+                        /bin/rm -rf /var/www/sites/*, \
+                        /bin/rm -f /etc/nginx/sites-enabled/*.conf
+
+# Firewall
+Cmnd_Alias ARTICLE_UFW = /usr/sbin/ufw *, /usr/bin/ufw *
+
+ALL ALL = NOPASSWD: ARTICLE_NGINX, ARTICLE_FS, ARTICLE_UFW

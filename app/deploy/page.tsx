@@ -24,6 +24,7 @@ export default async function DeployPage() {
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center gap-6">
           <Link href="/" className="text-sm text-slate-600 hover:text-slate-900">← Dashboard</Link>
           <h1 className="text-lg font-semibold">Deploy</h1>
+          <Link href="/system" className="text-sm text-slate-600 hover:text-slate-900 ml-auto">System</Link>
         </div>
       </nav>
       <main className="max-w-3xl mx-auto px-6 py-8">
