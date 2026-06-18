@@ -3,9 +3,14 @@ node_modules
 out
 dist
 runtime
+*.log
+*.tsbuildinfo
 .env
 .env.local
 .env*.local
+cookies*.txt
+ck*.txt
+nohup.out
 data
 public/sites/*
 !public/sites/.gitkeep
