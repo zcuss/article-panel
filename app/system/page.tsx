@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { getSession, clearSessionCookie } from '@/lib/auth';
+import SystemClient from './SystemClient';
 
 async function logout() {
   'use server';
