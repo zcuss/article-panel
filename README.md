@@ -37,6 +37,13 @@ curl -fsSL https://raw.githubusercontent.com/zcuss/article-panel/build/scripts/u
 
 Pulls latest `build` branch, restarts service, reloads nginx.
 
+## Uninstall
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/zcuss/article-panel/build/scripts/uninstall.sh | sudo bash -s -- --remove-data
+# add --purge to also remove nginx, ufw, openssl packages
+```
+
 ## Configure AI / change password
 
 After install, open `http://panel.yourdomain.com` -> **Settings** -> fill in:
