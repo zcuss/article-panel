@@ -164,7 +164,7 @@ cat <<EOF
   Password:     see $INSTALL_DIR/.env (ADMIN_PASSWORD)
   Install dir:  $INSTALL_DIR
   Service:      systemctl {status|restart|logs} article-panel
-  Update:       curl -fsSL https://raw.githubusercontent.com/zcuss/article-panel/build/update.sh | sudo bash
+  Update:       curl -fsSL https://raw.githubusercontent.com/zcuss/article-panel/build/scripts/update.sh | sudo bash
 
   DNS: point $ADMIN_DOMAIN -> $(curl -s https://api.ipify.org 2>/dev/null || echo "this VPS IP")
 EOF

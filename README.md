@@ -7,7 +7,7 @@ Multi-domain static article CMS. One Next.js admin panel publishes per-domain HT
 As root, with the domain you want for the admin panel pointed at this VPS:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/zcuss/article-panel/build/setup-vps.sh | bash -s -- --admin-domain panel.yourdomain.com
+curl -fsSL https://raw.githubusercontent.com/zcuss/article-panel/build/scripts/setup-vps.sh | bash -s -- --admin-domain panel.yourdomain.com
 ```
 
 That single command:
@@ -32,7 +32,7 @@ Nginx auto-serves `ram.web.id` from `/opt/article-panel/public/sites/ram.web.id/
 ## Update
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/zcuss/article-panel/build/update.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/zcuss/article-panel/build/scripts/update.sh | sudo bash
 ```
 
 Pulls latest `build` branch, restarts service, reloads nginx.
