@@ -35,15 +35,25 @@ die() { printf '\033[1;31mERR\033[0m %s\n' "$*"; exit 1; }
 export DEBIAN_FRONTEND=noninteractive
 
 log "Installing system packages"
-apt-get update -y >/dev/null
-apt-get install -y --no-install-recommends nginx git curl ca-certificates ufw openssl >/dev/null
+# Tolerate mirror failures (e.g. Aliyun unreachable) — proceed with cache
+apt-get update -y >/dev/null 2>&1 || log "WARN: apt update failed, using cache"
+apt-get install -y --no-install-recommends nginx git curl ca-certificates ufw openssl >/dev/null 2>&1 || {
+  log "WARN: apt install failed, trying again without recommends"
+  apt-get install -y nginx git curl ca-certificates ufw openssl 2>&1 | tail -5
+}
 
 if ! command -v node >/dev/null; then
   log "Installing Node.js 20"
-  curl -fsSL https://deb.nodesource.com/setup_20.x | bash - >/dev/null
-  apt-get install -y nodejs >/dev/null
+  # Try nodesource; fall back to distro node if it fails
+  if curl -fsSL https://deb.nodesource.com/setup_20.x | bash - >/dev/null 2>&1; then
+    apt-get install -y nodejs >/dev/null 2>&1 || log "WARN: nodesource install failed"
+  fi
+  if ! command -v node >/dev/null; then
+    log "Falling back to distro nodejs"
+    apt-get install -y nodejs 2>&1 | tail -3
+  fi
 fi
-ok "Node $(node -v) (skip install: already present)"
+ok "Node $(node -v 2>/dev/null || echo 'NOT FOUND')"
 
 if ! id "$APP_USER" >/dev/null 2>&1; then
   log "Creating user $APP_USER"
