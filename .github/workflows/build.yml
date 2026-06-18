@@ -100,8 +100,8 @@ jobs:
           # actions/checkout already set GITHUB_TOKEN credentials in ~/.gitconfig.
           # Switch the SAME repo to an orphan branch and replace its contents.
           git checkout --orphan "$BRANCH"
-          # Wipe working tree (keep .git)
-          find . -maxdepth 1 -mindepth 1 ! -name '.git' -exec rm -rf {} +
+          # Wipe working tree (keep .git and runtime)
+          find . -maxdepth 1 -mindepth 1 ! -name '.git' ! -name 'runtime' -exec rm -rf {} +
           # Move runtime bundle into the branch root
           cp -r runtime/. .
           rm -rf runtime
