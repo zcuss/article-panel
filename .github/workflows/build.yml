@@ -12,9 +12,6 @@ jobs:
   build:
     name: Build Next.js
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: article-panel
     steps:
       - uses: actions/checkout@v4
 
@@ -22,36 +19,35 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: article-panel/package.json
+          cache-dependency-path: package-lock.json
 
       - name: Install
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
 
       - name: Build
         env:
-          # CI build only — no real secrets needed; users override at runtime via .env on VPS
+          # CI build only — secrets overridden at runtime via .env on VPS
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD || 'ci-placeholder' }}
           JWT_SECRET: ${{ secrets.JWT_SECRET || 'ci-placeholder-32-chars-padding-x' }}
         run: npm run build
 
       - name: Prepare runtime bundle
-        working-directory: .
         run: |
           set -e
           rm -rf runtime
           mkdir -p runtime
           # Standalone output (includes its own node_modules + server.js)
-          cp -r article-panel/.next/standalone/. runtime/
+          cp -r .next/standalone/. runtime/
           # Static assets Next.js may reference from outside standalone
           mkdir -p runtime/.next
-          cp -r article-panel/.next/static runtime/.next/static 2>/dev/null || true
+          cp -r .next/static runtime/.next/static 2>/dev/null || true
           # Public dir (will hold generated sites/* at runtime, but include folder)
           mkdir -p runtime/public
-          cp -r article-panel/public/. runtime/public/
-          # package.json + scripts for ops convenience
-          cp article-panel/package.json runtime/
-          cp article-panel/next.config.js runtime/ 2>/dev/null || true
-          # Health check / startup helper
+          cp -r public/. runtime/public/
+          # package.json + next config for ops convenience
+          cp package.json runtime/
+          cp next.config.js runtime/ 2>/dev/null || true
+          # Startup helper
           cat > runtime/start.sh <<'EOF'
           #!/usr/bin/env bash
           set -e
@@ -61,10 +57,9 @@ jobs:
           exec node .next/standalone/server.js
           EOF
           chmod +x runtime/start.sh
-          # Drop a README at the root of the runtime bundle
           cat > runtime/README.md <<'EOF'
           # article-panel (runtime)
-          This branch contains the prebuilt Next.js app. No `npm install`, no `npm run build` required.
+          Prebuilt Next.js app. No `npm install`, no `npm run build` required.
 
           ## Run
           ```bash
@@ -72,13 +67,8 @@ jobs:
           PORT=3001 ./start.sh       # custom port
           ```
 
-          Or directly:
-          ```bash
-          node .next/standalone/server.js
-          ```
-
           ## Config
-          Create a `.env` file in this directory (the panel reads it on every request):
+          Create a `.env` file alongside `start.sh`:
           ```
           ADMIN_PASSWORD=your-strong-password
           JWT_SECRET=32-char-random-secret
@@ -94,8 +84,8 @@ jobs:
           ## Layout
           - `.next/standalone/` — Node server + bundled deps
           - `.next/static/` — client/static assets
-          - `public/sites/<domain>/index.html` — generated articles (created at runtime by the panel)
-          - `data/app.db` — SQLite database (auto-created on first run)
+          - `public/sites/<domain>/index.html` — generated articles (runtime)
+          - `data/app.db` — SQLite database (auto-created)
           EOF
           echo "Runtime bundle size:"
           du -sh runtime
@@ -113,7 +103,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
-          # Allow empty commit message edge case
           git commit -q -m "build: ${GITHUB_SHA::7}" || echo "Nothing to commit"
           git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:${BRANCH}"
           echo "✅ Pushed to ${BRANCH}"
