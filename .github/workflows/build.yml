@@ -97,13 +97,16 @@ jobs:
           BRANCH: build
         run: |
           set -e
-          gh auth setup-git
-          cd runtime
-          git init -q
-          git checkout -q -b "$BRANCH"
+          # actions/checkout already set GITHUB_TOKEN credentials in ~/.gitconfig.
+          # Switch the SAME repo to an orphan branch and replace its contents.
+          git checkout --orphan "$BRANCH"
+          # Wipe working tree (keep .git)
+          find . -maxdepth 1 -mindepth 1 ! -name '.git' -exec rm -rf {} +
+          # Move runtime bundle into the branch root
+          cp -r runtime/. .
+          rm -rf runtime
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
           git add -A
           git commit -q -m "build: ${GITHUB_SHA::7}" || echo "Nothing to commit"
           git push -f origin "HEAD:${BRANCH}"
