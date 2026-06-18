@@ -12,6 +12,7 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 cd "$INSTALL_DIR"
+git config --global --add safe.directory "$INSTALL_DIR" || true
 git fetch --depth 1 origin "$BRANCH"
 git reset --hard "origin/$BRANCH"
 chown -R article:article "$INSTALL_DIR" || true

@@ -90,7 +90,7 @@ if ! id "$APP_USER" >/dev/null 2>&1; then
 fi
 
 if [[ -d "$INSTALL_DIR/.git" ]]; then
-  run "Update existing install" bash -c "cd '$INSTALL_DIR' && git fetch --depth 1 origin '$BRANCH' && git reset --hard 'origin/$BRANCH'"
+  run "Update existing install" bash -c "git config --global --add safe.directory '$INSTALL_DIR' && cd '$INSTALL_DIR' && git fetch --depth 1 origin '$BRANCH' && git reset --hard 'origin/$BRANCH'"
 else
   run "Clone build branch" git clone --depth 1 --branch "$BRANCH" "$REPO" "$INSTALL_DIR"
 fi
