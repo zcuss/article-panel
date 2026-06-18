@@ -69,6 +69,14 @@ log "npm install"
 npm ci --no-audit --no-fund
 log "Building Next.js"
 npm run build
+
+# Copy standalone runtime assets
+if [ -d .next/standalone ]; then
+  cp -r public .next/standalone/ 2>/dev/null || true
+  cp -r .next/static .next/standalone/.next/ 2>/dev/null || true
+  ok "standalone bundle ready"
+fi
+
 ok "build complete"
 
 # 6. Done
