@@ -38,12 +38,12 @@ log "Installing system packages"
 apt-get update -y >/dev/null
 apt-get install -y --no-install-recommends nginx git curl ca-certificates ufw openssl >/dev/null
 
-if ! command -v node >/dev/null || ! node -v | grep -qE '^v20\.'; then
+if ! command -v node >/dev/null; then
   log "Installing Node.js 20"
   curl -fsSL https://deb.nodesource.com/setup_20.x | bash - >/dev/null
   apt-get install -y nodejs >/dev/null
 fi
-ok "Node $(node -v)"
+ok "Node $(node -v) (skip install: already present)"
 
 if ! id "$APP_USER" >/dev/null 2>&1; then
   log "Creating user $APP_USER"
