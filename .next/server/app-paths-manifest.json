@@ -1,0 +1,17 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/articles/[id]/route": "app/api/articles/[id]/route.js",
+  "/api/ai/generate/route": "app/api/ai/generate/route.js",
+  "/api/articles/route": "app/api/articles/route.js",
+  "/api/auth/login/route": "app/api/auth/login/route.js",
+  "/api/deploy/reload-nginx/route": "app/api/deploy/reload-nginx/route.js",
+  "/api/deploy/build/route": "app/api/deploy/build/route.js",
+  "/articles/new/page": "app/articles/new/page.js",
+  "/api/settings/route": "app/api/settings/route.js",
+  "/deploy/page": "app/deploy/page.js",
+  "/articles/[id]/page": "app/articles/[id]/page.js",
+  "/login/page": "app/login/page.js",
+  "/settings/page": "app/settings/page.js",
+  "/page": "app/page.js",
+  "/articles/page": "app/articles/page.js"
+}
