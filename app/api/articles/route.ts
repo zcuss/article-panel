@@ -35,5 +35,5 @@ export async function POST(req: NextRequest) {
   );
   const fresh = db.prepare('SELECT * FROM articles WHERE id = ?').get(info.lastInsertRowid) as Article;
   if (fresh.status === 'published') writeArticleToDisk(fresh);
-  return NextResponse.json({ id: fresh.id, ...fresh }, { status: 201 });
+  return NextResponse.json(fresh, { status: 201 });
 }
