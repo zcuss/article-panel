@@ -38,12 +38,12 @@ jobs:
           mkdir -p runtime
           # Standalone output (includes its own node_modules + server.js)
           cp -r .next/standalone/. runtime/
-          # Static assets Next.js may reference from outside standalone
-          mkdir -p runtime/.next
-          cp -r .next/static runtime/.next/static 2>/dev/null || true
-          # Public dir (will hold generated sites/* at runtime, but include folder)
-          mkdir -p runtime/public
-          cp -r public/. runtime/public/
+          # Static assets — MUST live inside standalone dir, that's where server.js looks
+          mkdir -p runtime/.next/standalone/.next
+          cp -r .next/static runtime/.next/standalone/.next/static
+          # Public dir (will hold generated sites/* at runtime)
+          mkdir -p runtime/.next/standalone/public
+          cp -r public/. runtime/.next/standalone/public/
           # package.json + next config for ops convenience
           cp package.json runtime/
           cp next.config.js runtime/ 2>/dev/null || true
@@ -67,6 +67,10 @@ jobs:
           chmod +x runtime/start.sh
           # Source README (install instructions) replaces heredoc default
           cp README.md runtime/README.md 2>/dev/null || true
+          # Sanity: must exist or server.js 502s
+          test -f runtime/.next/standalone/server.js || { echo "MISSING server.js"; exit 1; }
+          test -d runtime/.next/standalone/.next/static || { echo "MISSING .next/static"; exit 1; }
+          test -d runtime/.next/standalone/public || { echo "MISSING public"; exit 1; }
           echo "Runtime bundle size:"
           du -sh runtime
           find runtime -type f | wc -l

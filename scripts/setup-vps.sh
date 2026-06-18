@@ -153,14 +153,14 @@ server {
 server {
     listen 80 default_server;
     server_name _;
-    root $INSTALL_DIR/public/sites/\$host;
+    root $INSTALL_DIR/.next/standalone/public/sites/\$host;
     index index.html;
     location / { try_files \$uri \$uri/ =404; }
 }
 NGXEOF
 
-mkdir -p '$INSTALL_DIR/public/sites'
-chown -R '$APP_USER':'$APP_USER' '$INSTALL_DIR/public'
+mkdir -p '$INSTALL_DIR/.next/standalone/public/sites'
+chown -R '$APP_USER':'$APP_USER' '$INSTALL_DIR/.next/standalone/public'
 nginx -t
 systemctl reload nginx
 "
