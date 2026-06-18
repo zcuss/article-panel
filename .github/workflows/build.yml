@@ -64,36 +64,8 @@ jobs:
           exec node .next/standalone/server.js
           EOF
           chmod +x runtime/start.sh
-          cat > runtime/README.md <<'EOF'
-          # article-panel (runtime)
-          Prebuilt Next.js app. No `npm install`, no `npm run build` required.
-
-          ## Run
-          ```bash
-          ./start.sh                 # default: 127.0.0.1:3000
-          PORT=3001 ./start.sh       # custom port
-          ```
-
-          ## Config
-          Create a `.env` file alongside `start.sh`:
-          ```
-          ADMIN_PASSWORD=your-strong-password
-          JWT_SECRET=32-char-random-secret
-          AI_BASE_URL=https://api.openai.com/v1
-          AI_API_KEY=sk-xxx
-          AI_MODEL=gpt-4o-mini
-          SITES_DIR=./public/sites
-          NGINX_SITES_DIR=./nginx/sites
-          NGINX_INCLUDE_PATH=/etc/nginx/sites-enabled/articles.conf
-          NGINX_RELOAD_CMD=sudo /usr/sbin/nginx -s reload
-          ```
-
-          ## Layout
-          - `.next/standalone/` — Node server + bundled deps
-          - `.next/static/` — client/static assets
-          - `public/sites/<domain>/index.html` — generated articles (runtime)
-          - `data/app.db` — SQLite database (auto-created)
-          EOF
+          # Source README (install instructions) replaces heredoc default
+          cp README.md runtime/README.md 2>/dev/null || true
           echo "Runtime bundle size:"
           du -sh runtime
           find runtime -type f | wc -l
