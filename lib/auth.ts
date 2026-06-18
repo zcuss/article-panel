@@ -23,14 +23,14 @@ export async function verifySession(token: string) {
 }
 
 export async function getSession() {
-  const c = await cookies();
+  const c = cookies();
   const tok = c.get(COOKIE)?.value;
   if (!tok) return null;
   try { return await verifySession(tok); } catch { return null; }
 }
 
 export async function setSessionCookie(token: string) {
-  const c = await cookies();
+  const c = cookies();
   c.set(COOKIE, token, {
     httpOnly: true,
     sameSite: 'lax',
@@ -41,8 +41,7 @@ export async function setSessionCookie(token: string) {
 }
 
 export async function clearSessionCookie() {
-  const c = await cookies();
-  c.delete(COOKIE);
+  cookies().delete(COOKIE);
 }
 
 export async function requireAdmin() {
