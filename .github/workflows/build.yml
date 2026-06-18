@@ -97,20 +97,14 @@ jobs:
           BRANCH: build
         run: |
           set -e
+          gh auth setup-git
           cd runtime
           git init -q
           git checkout -q -b "$BRANCH"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # use a temporary credential helper that injects GITHUB_TOKEN
           git remote add origin "https://github.com/${GITHUB_REPOSITORY}.git"
-          git config --local credential.helper ""
-          git config --local credential.helper '!f() { echo "Authorization: Bearer ${GITHUB_TOKEN}"; }; f'
-          # workaround: write netrc for cleanest auth
-          printf 'machine github.com\nlogin x-access-token\npassword %s\n' "$GITHUB_TOKEN" > ~/.netrc
-          chmod 600 ~/.netrc
           git add -A
           git commit -q -m "build: ${GITHUB_SHA::7}" || echo "Nothing to commit"
           git push -f origin "HEAD:${BRANCH}"
-          rm -f ~/.netrc
           echo "✅ Pushed to ${BRANCH}"
