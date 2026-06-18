@@ -49,6 +49,11 @@ jobs:
           cp next.config.js runtime/ 2>/dev/null || true
           # Env template (so VPS can `cp .env.example .env`)
           cp .env.example runtime/ 2>/dev/null || true
+          # VPS installer scripts (one-liner install + update)
+          mkdir -p runtime/scripts
+          cp scripts/setup-vps.sh runtime/scripts/
+          cp scripts/update.sh runtime/scripts/
+          chmod +x runtime/scripts/*.sh
           # Startup helper
           cat > runtime/start.sh <<'EOF'
           #!/usr/bin/env bash

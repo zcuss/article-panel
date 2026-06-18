@@ -1,4 +1,6 @@
 // OpenAI-compatible chat completion client. Works with OpenAI, OpenRouter, Together, llama.cpp, etc.
+import { get as envGet } from './env';
+
 export type ChatMsg = { role: 'system' | 'user' | 'assistant'; content: string };
 
 export type AIConfig = {
@@ -10,10 +12,10 @@ export type AIConfig = {
 
 export function getAIConfig(): AIConfig {
   return {
-    baseUrl: (process.env.AI_BASE_URL || 'https://api.openai.com/v1').replace(/\/+$/, ''),
-    apiKey: process.env.AI_API_KEY || '',
-    model: process.env.AI_MODEL || 'gpt-4o-mini',
-    extraHeader: process.env.AI_EXTRA_HEADER || undefined,
+    baseUrl: envGet('AI_BASE_URL', 'https://api.openai.com/v1').replace(/\/+$/, ''),
+    apiKey: envGet('AI_API_KEY', ''),
+    model: envGet('AI_MODEL', 'gpt-4o-mini'),
+    extraHeader: envGet('AI_EXTRA_HEADER') || undefined,
   };
 }
 
