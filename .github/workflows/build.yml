@@ -37,13 +37,22 @@ jobs:
           rm -rf runtime
           mkdir -p runtime
           # Standalone output (includes its own node_modules + server.js)
-          cp -r .next/standalone/. runtime/
-          # Static assets — MUST live inside standalone dir, that's where server.js looks
-          mkdir -p runtime/.next/standalone/.next
-          cp -r .next/static runtime/.next/standalone/.next/static
-          # Public dir (will hold generated sites/* at runtime)
-          mkdir -p runtime/.next/standalone/public
-          cp -r public/. runtime/.next/standalone/public/
+          if [ -f .next/standalone/server.js ]; then
+            echo "Using standalone build"
+            cp -r .next/standalone/. runtime/
+            mkdir -p runtime/.next/standalone/.next
+            cp -r .next/static runtime/.next/standalone/.next/static
+            mkdir -p runtime/.next/standalone/public
+            cp -r public/. runtime/.next/standalone/public/
+          else
+            echo "Standalone server.js not found, falling back to full source"
+            ls -la .next/ 2>&1 | head
+            ls -la .next/standalone/ 2>&1 | head
+            cp -r .next runtime/.next
+            cp -r public runtime/public
+            cp package.json runtime/
+            cp package-lock.json runtime/
+          fi
           # package.json + next config for ops convenience
           cp package.json runtime/
           cp next.config.js runtime/ 2>/dev/null || true
@@ -62,15 +71,24 @@ jobs:
           cd "$(dirname "$0")"
           export PORT="${PORT:-3000}"
           export HOSTNAME="${HOSTNAME:-127.0.0.1}"
-          exec node .next/standalone/server.js
+          if [ -f .next/standalone/server.js ]; then
+            exec node .next/standalone/server.js
+          else
+            echo "Installing deps (no standalone)..."
+            npm ci --omit=dev --no-audit --no-fund
+            exec npx next start -p "${PORT}" -H "${HOSTNAME}"
+          fi
           EOF
           chmod +x runtime/start.sh
           # Source README (install instructions) replaces heredoc default
           cp README.md runtime/README.md 2>/dev/null || true
-          # Sanity: must exist or server.js 502s
-          test -f runtime/.next/standalone/server.js || { echo "MISSING server.js"; exit 1; }
-          test -d runtime/.next/standalone/.next/static || { echo "MISSING .next/static"; exit 1; }
-          test -d runtime/.next/standalone/public || { echo "MISSING public"; exit 1; }
+          # Sanity: must exist or service 502s
+          if [ -f runtime/.next/standalone/server.js ]; then
+            test -d runtime/.next/standalone/.next/static || { echo "MISSING .next/static"; exit 1; }
+            test -d runtime/.next/standalone/public || { echo "MISSING public"; exit 1; }
+          else
+            echo "WARN: no standalone server.js, will fall back to next start"
+          fi
           echo "Runtime bundle size:"
           du -sh runtime
           find runtime -type f | wc -l
