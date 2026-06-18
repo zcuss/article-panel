@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth';
 import { sudo } from '@/lib/sh';
+import fs from 'node:fs';
 
 const TEMPLATE = (domain: string, root: string) => `server {
     listen 80;
@@ -25,13 +26,23 @@ export async function POST(_req: Request, { params }: { params: { domain: string
 
   const root = process.env.SITES_DIR || '/var/www/sites';
   const nginxDir = process.env.NGINX_SITES_DIR || '/etc/nginx/sites-enabled';
-  const tmpl = TEMPLATE(domain, root);
+  const confFile = `${nginxDir}/${domain}.conf`;
+  const siteDir = `${root}/${domain}`;
 
-  const write = await sudo('bash', ['-c', `mkdir -p '${root}/${domain}' && cat > '${nginxDir}/${domain}.conf' <<'NGX'
-${tmpl}
-NGX
-nginx -t && nginx -s reload`]);
-  if (write.code !== 0) return NextResponse.json({ ok: false, stderr: write.stderr }, { status: 500 });
+  const mk = await sudo('mkdir', ['-p', siteDir]);
+  if (mk.code !== 0) return NextResponse.json({ ok: false, error: 'mkdir failed', stderr: mk.stderr }, { status: 500 });
+
+  const tmp = `/tmp/ap-${domain}.conf`;
+  fs.writeFileSync(tmp, TEMPLATE(domain, root));
+  const cp = await sudo('cp', [tmp, confFile]);
+  try { fs.unlinkSync(tmp); } catch {}
+  if (cp.code !== 0) return NextResponse.json({ ok: false, error: 'cp failed', stderr: cp.stderr }, { status: 500 });
+
+  const test = await sudo('nginx', ['-t']);
+  if (test.code !== 0) return NextResponse.json({ ok: false, error: 'nginx -t failed', stderr: test.stderr }, { status: 500 });
+  const reload = await sudo('nginx', ['-s', 'reload']);
+  if (reload.code !== 0) return NextResponse.json({ ok: false, error: 'reload failed', stderr: reload.stderr }, { status: 500 });
+
   return NextResponse.json({ ok: true });
 }
 
@@ -42,7 +53,19 @@ export async function DELETE(_req: Request, { params }: { params: { domain: stri
 
   const nginxDir = process.env.NGINX_SITES_DIR || '/etc/nginx/sites-enabled';
   const root = process.env.SITES_DIR || '/var/www/sites';
-  const r = await sudo('bash', ['-c', `rm -f '${nginxDir}/${domain}.conf' && rm -rf '${root}/${domain}' && nginx -t && nginx -s reload`]);
-  if (r.code !== 0) return NextResponse.json({ ok: false, stderr: r.stderr }, { status: 500 });
+  const confFile = `${nginxDir}/${domain}.conf`;
+  const siteDir = `${root}/${domain}`;
+
+  const rmConf = await sudo('rm', ['-f', confFile]);
+  if (rmConf.code !== 0) return NextResponse.json({ ok: false, error: 'rm conf failed', stderr: rmConf.stderr }, { status: 500 });
+
+  const rmSite = await sudo('rm', ['-rf', siteDir]);
+  if (rmSite.code !== 0) return NextResponse.json({ ok: false, error: 'rm site failed', stderr: rmSite.stderr }, { status: 500 });
+
+  const test = await sudo('nginx', ['-t']);
+  if (test.code !== 0) return NextResponse.json({ ok: false, error: 'nginx -t failed', stderr: test.stderr }, { status: 500 });
+  const reload = await sudo('nginx', ['-s', 'reload']);
+  if (reload.code !== 0) return NextResponse.json({ ok: false, error: 'reload failed', stderr: reload.stderr }, { status: 500 });
+
   return NextResponse.json({ ok: true });
 }
