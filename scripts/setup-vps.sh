@@ -124,7 +124,7 @@ WorkingDirectory=$INSTALL_DIR
 EnvironmentFile=$INSTALL_DIR/.env
 Environment=PORT=$APP_PORT
 Environment=HOSTNAME=127.0.0.1
-ExecStart=/usr/bin/env node .next/standalone/server.js
+ExecStart=$INSTALL_DIR/start.sh
 Restart=always
 RestartSec=3
 
